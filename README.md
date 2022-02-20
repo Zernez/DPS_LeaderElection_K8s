@@ -2,17 +2,17 @@
 
 --For create the images, firstly:
 
-$docker build -f Dockerfile_host_0 -t leader-election-python-0:latest .
+`$docker build -f Dockerfile_host_0 -t leader-election-python-0:latest .`
 
-$docker build -f Dockerfile_host_1 -t leader-election-python-1:latest .
+`$docker build -f Dockerfile_host_1 -t leader-election-python-1:latest .`
 
 --For deploy the system run inside the app folder:
 
-$kubectl apply -f deployment.yaml
+`$kubectl apply -f deployment.yaml`
 
 --Check if is all ok:
 
-$kubectl get pods
+`$kubectl get pods`
 
 --The servers respond at:
 
