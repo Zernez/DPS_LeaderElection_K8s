@@ -14,10 +14,12 @@ $kubectl apply -f deployment.yaml
 
 $kubectl get pods
 
---The server respond at:
+--The servers respond at:
 
 http:\\localhost:5010
 
 http:\\localhost:5011
 
---For developing the message we can use Flask-SocketIO as message exchanger using the same Flask library: https://flask-socketio.readthedocs.io/en/latest/getting_started.html
+--For developing the message we can use Flask-SocketIO as message exchanger using the same Flask library: 
+
+https://flask-socketio.readthedocs.io/en/latest/getting_started.html
