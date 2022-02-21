@@ -20,8 +20,10 @@ http:\\localhost:5010
 
 http:\\localhost:5011
 
---For developing the message we can use Flask-SocketIO as message exchanger using the same Flask library or using sockets: 
+--For developing the message we can use Flask-SocketIO as message exchanger using the same Flask library or using sockets or classic Flask server with JSON as message: 
 
 https://flask-socketio.readthedocs.io/en/latest/getting_started.html
 
 https://pypi.org/project/PySocks/
+
+
