@@ -1,6 +1,6 @@
 # DPS-Assignment 1
 
---For create the images, firstly:
+--For create the images (only the first time or when modifiy the code of container), firstly:
 
 `$docker build -f Dockerfile_host_0 -t leader-election-python-0:latest .`
 
@@ -20,6 +20,8 @@ http:\\localhost:5010
 
 http:\\localhost:5011
 
---For developing the message we can use Flask-SocketIO as message exchanger using the same Flask library: 
+--For developing the message we can use Flask-SocketIO as message exchanger using the same Flask library or using sockets: 
 
 https://flask-socketio.readthedocs.io/en/latest/getting_started.html
+
+https://pypi.org/project/PySocks/

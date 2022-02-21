@@ -1,0 +1,40 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: election-service
+spec:
+  selector:
+    app: leader-election-python
+  ports:
+  - protocol: "TCP"
+    port: 6000
+    targetPort: 5000
+  type: LoadBalancer
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: leader-election-python
+spec:
+  selector:
+    matchLabels:
+      app: leader-election-python
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: leader-election-python
+    spec:
+      containers:
+      - name: leader-election-python-1
+        image: leader-election-python:latest
+        imagePullPolicy: Never
+        ports:
+        - containerPort: 5000
+        
+      - name: hleader-election-python-2
+        image: leader-election-python:latest
+        imagePullPolicy: Never
+        ports:
+        - containerPort: 5000
