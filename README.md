@@ -20,6 +20,10 @@ http:\\localhost:5010
 
 http:\\localhost:5011
 
+For stop running containers and kubernetes system:
+
+`kubectl delete deployment leader-election-python --grace-period=5`
+
 --For developing the message we can use Flask-SocketIO as message exchanger using the same Flask library or using sockets or classic Flask server with JSON as message: 
 
 https://flask-socketio.readthedocs.io/en/latest/getting_started.html
