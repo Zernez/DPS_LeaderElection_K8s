@@ -1,6 +1,6 @@
 # DPS-Assignment 1
 
---For create the images (only the first time or when modifiy the code of container), firstly:
+--For create the images (only the first time or when modifiy the code of container), inside the folder "app", firstly:
 
 `$docker build -f Dockerfile_host_0 -t leader-election-python-0:latest .`
 
