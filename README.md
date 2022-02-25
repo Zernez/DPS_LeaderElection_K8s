@@ -14,6 +14,12 @@
 
 `$kubectl get pods`
 
+if the output contains ErrImageNeverPull:
+
+Try this command and then rebuild the docker image
+
+`eval $(minikube docker-env)`
+
 --The servers respond at:
 
 http:\\localhost:5010
