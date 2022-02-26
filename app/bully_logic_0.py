@@ -1,3 +1,4 @@
+from asyncio.windows_events import NULL
 import time
 import json
 import requests
@@ -7,8 +8,8 @@ class logic:
 
     url_local = "http://127.0.0.1:"
     port_local= 5010
-    interval= "10s"
-    timeout= "1s"
+    ID_local= None
+    network= {}
 
     def __init__(self):
         self.register_service()
@@ -19,6 +20,9 @@ class logic:
     def __init__(self):
         self.election()
 
+    def __init__(self):
+        self.announce()
+
     def generate_node_id():
         millis = int(round(time.time() * 1000))
         node_id = millis + randint(0, 200)
@@ -26,31 +30,28 @@ class logic:
 
 
     # This method is used to register the service in the service registry
-    def register_service(self, name, port, node_id):
+    def register_service(self, port, node_id):
         url = self.url_local + port +'/services'
         data = {
-            "Name": name,
-            "ID": str(node_id),
+            "ID": node_id,
             "port": port,
-            "check": {
-                "name": "Check Counter health %s" % port,
-                "tcp": "localhost:%s" % port,
-                "interval": self.interval,
-                "timeout": self.timeout
-            }
+            "coordinator": None,
         }
         put_request = requests.put(url, json=data)
+
+        if port == self.port_local:
+            self.ID_local= node_id
+
         return put_request.status_code
 
 
-    def check_health_of_the_service(self, port ,service):
-        print('Checking health of the %s' % service)
-        url = self.url_local + port + '/services/%s' % service
+    def check_health_of_the_service(self, port):
+        
+        print('Checking for host stay-alive')
+        
+        url = self.url_local + port + '/services/alive'
         response = requests.get(url)
-        response_content = json.loads(response.text)
-        aggregated_state = response_content[0]['AggregatedStatus']
-        service_status = aggregated_state
-        if response.status_code == 503 and aggregated_state == 'critical':
+        if response.status_code == 503:
             service_status = 'crashed'
         print('Service status: %s' % service_status)
         return service_status
@@ -58,17 +59,13 @@ class logic:
 
     # get ports of all the registered nodes from the service registry
     def get_ports_of_nodes(self):
-        ports_dict = {}
+        ports_list = []
         response = requests.get(self.url_local + self.port_local + '/services')
         nodes = json.loads(response.text)
-        for each_service in nodes:
-            service = nodes[each_service]['Service']
-            status = nodes[each_service]['Port']
-            key = service
-            value = status
-            ports_dict[key] = value
-        return ports_dict
-
+        for host in nodes:
+            port = host['port']
+            ports_list.append(port)
+        return ports_list
 
     def get_higher_nodes(node_details, node_id):
         higher_node_array = []
@@ -114,19 +111,19 @@ class logic:
     def get_details(ports_of_all_nodes):
         node_details = []
         for each_node in ports_of_all_nodes:
-            url = 'http://127.0.0.1:%s/nodeDetails' % ports_of_all_nodes[each_node]
+            url = 'http://127.0.0.1:%s/services' % ports_of_all_nodes[each_node]
             data = requests.get(url)
             node_details.append(data.json())
         return node_details
 
 
     # this method is used to announce that it is the master to the other nodes.
-    def announce(coordinator):
-        all_nodes = get_ports_of_nodes()
+    def announce(self, coordinator):
+        all_nodes = self.get_ports_of_nodes()
         data = {
             'coordinator': coordinator
         }
         for each_node in all_nodes:
-            url = 'http://localhost:%s/announce' % all_nodes[each_node]
+            url =self.url_local +'%s/announce' % all_nodes[each_node]
             print(url)
             requests.post(url, json=data)
