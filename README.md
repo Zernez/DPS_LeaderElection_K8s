@@ -2,7 +2,7 @@
 
 --For create the images (only the first time or when modifiy the code of container), inside the folder "app", firstly:
 
-`$docker build -f Dockerfile_host_0 -t leader-election-python-0:latest .`
+(`$docker build -f Dockerfile_host_0 -t leader-election-python-0:latest .` -----In development, not to run this command at now)
 
 `$docker build -f Dockerfile_host_1 -t leader-election-python-1:latest .`
 
@@ -18,7 +18,7 @@
 
 --The servers respond at:
 
-http:\\localhost:5010
+(http:\\localhost:5010 -----In development, not available at now)
 
 http:\\localhost:5011
 

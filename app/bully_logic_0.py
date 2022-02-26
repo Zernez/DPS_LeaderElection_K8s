@@ -5,6 +5,20 @@ from random import randint
 
 class logic:
 
+    url_local = "http://127.0.0.1:"
+    port_local= 5010
+    interval= "10s"
+    timeout= "1s"
+
+    def __init__(self):
+        self.register_service()
+    
+    def __init__(self):
+        self.check_health_of_the_service()
+    
+    def __init__(self):
+        self.election()
+
     def generate_node_id():
         millis = int(round(time.time() * 1000))
         node_id = millis + randint(0, 200)
@@ -12,8 +26,8 @@ class logic:
 
 
     # This method is used to register the service in the service registry
-    def register_service(name, port, node_id):
-        url = "http://localhost:5010/services"
+    def register_service(self, name, port, node_id):
+        url = self.url_local + port +'/services'
         data = {
             "Name": name,
             "ID": str(node_id),
@@ -21,17 +35,17 @@ class logic:
             "check": {
                 "name": "Check Counter health %s" % port,
                 "tcp": "localhost:%s" % port,
-                "interval": "10s",
-                "timeout": "1s"
+                "interval": self.interval,
+                "timeout": self.timeout
             }
         }
         put_request = requests.put(url, json=data)
         return put_request.status_code
 
 
-    def check_health_of_the_service(service):
+    def check_health_of_the_service(self, port ,service):
         print('Checking health of the %s' % service)
-        url = 'http://localhost:5010/services/%s' % service
+        url = self.url_local + port + '/services/%s' % service
         response = requests.get(url)
         response_content = json.loads(response.text)
         aggregated_state = response_content[0]['AggregatedStatus']
@@ -43,9 +57,9 @@ class logic:
 
 
     # get ports of all the registered nodes from the service registry
-    def get_ports_of_nodes():
+    def get_ports_of_nodes(self):
         ports_dict = {}
-        response = requests.get('http://127.0.0.1:5010/services')
+        response = requests.get(self.url_local + self.port_local + '/services')
         nodes = json.loads(response.text)
         for each_service in nodes:
             service = nodes[each_service]['Service']
@@ -65,10 +79,10 @@ class logic:
 
 
     # this method is used to send the higher node id to the proxy
-    def election(higher_nodes_array, node_id):
+    def election(self, higher_nodes_array, node_id):
         status_code_array = []
         for each_port in higher_nodes_array:
-            url = 'http://localhost:%s/proxy' % each_port
+            url = self.url_local + '%s/proxy' % each_port
             data = {
                 "node_id": node_id
             }
@@ -79,10 +93,10 @@ class logic:
 
 
     # this method returns if the cluster is ready for the election
-    def ready_for_election(ports_of_all_nodes, self_election, self_coordinator):
+    def ready_for_election(self, ports_of_all_nodes, self_election, self_coordinator):
         coordinator_array = []
         election_array = []
-        node_details = get_details(ports_of_all_nodes)
+        node_details = self.get_details(ports_of_all_nodes)
 
         for each_node in node_details:
             coordinator_array.append(each_node['coordinator'])
@@ -100,7 +114,7 @@ class logic:
     def get_details(ports_of_all_nodes):
         node_details = []
         for each_node in ports_of_all_nodes:
-            url = 'http://localhost:%s/nodeDetails' % ports_of_all_nodes[each_node]
+            url = 'http://127.0.0.1:%s/nodeDetails' % ports_of_all_nodes[each_node]
             data = requests.get(url)
             node_details.append(data.json())
         return node_details
