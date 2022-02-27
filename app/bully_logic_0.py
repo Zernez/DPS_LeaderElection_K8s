@@ -29,16 +29,29 @@ class logic:
         return node_id
 
 
-    # This method is used to register the service in the service registry
-    def register_service(self, port, node_id):
-        url = self.url_local + port +'/services'
+    def register_service(self, port_id, node_id):
+
         data = {
             "ID": node_id,
-            "port": port,
+            "port": port_id,
             "coordinator": None,
+            "election": None
         }
-        put_request = requests.put(url, json=data)
+        
+        ports= self.get_ports_of_nodes()
+        
+        for port in ports:
 
+            status= self.check_health_of_the_service(port)
+            url = self.url_local + port +'/services'
+            if status != "Failed":
+                put_request = requests.put(url, json=data)
+            else:
+                restart()                
+
+        url = self.url_local + port +'/services'
+        put_request = requests.put(url, json=data)        
+        
         if port == self.port_local:
             self.ID_local= node_id
 
@@ -46,18 +59,14 @@ class logic:
 
 
     def check_health_of_the_service(self, port):
-        
-        print('Checking for host stay-alive')
-        
+        print('Checking for host stay-alive')   
         url = self.url_local + port + '/services/alive'
         response = requests.get(url)
-        if response.status_code == 503:
-            service_status = 'crashed'
+        if response.status_code != 200:
+            service_status = 'Failed'
         print('Service status: %s' % service_status)
         return service_status
 
-
-    # get ports of all the registered nodes from the service registry
     def get_ports_of_nodes(self):
         ports_list = []
         response = requests.get(self.url_local + self.port_local + '/services')
@@ -70,12 +79,10 @@ class logic:
     def get_higher_nodes(node_details, node_id):
         higher_node_array = []
         for each in node_details:
-            if each['node_id'] > node_id:
+            if each['ID'] > node_id:
                 higher_node_array.append(each['port'])
         return higher_node_array
 
-
-    # this method is used to send the higher node id to the proxy
     def election(self, higher_nodes_array, node_id):
         status_code_array = []
         for each_port in higher_nodes_array:
@@ -88,8 +95,6 @@ class logic:
         if 200 in status_code_array:
             return 200
 
-
-    # this method returns if the cluster is ready for the election
     def ready_for_election(self, ports_of_all_nodes, self_election, self_coordinator):
         coordinator_array = []
         election_array = []
@@ -106,8 +111,6 @@ class logic:
         else:
             return True
 
-
-    # this method is used to get the details of all the nodes by syncing with each node by calling each nodes' API.
     def get_details(ports_of_all_nodes):
         node_details = []
         for each_node in ports_of_all_nodes:
@@ -116,8 +119,6 @@ class logic:
             node_details.append(data.json())
         return node_details
 
-
-    # this method is used to announce that it is the master to the other nodes.
     def announce(self, coordinator):
         all_nodes = self.get_ports_of_nodes()
         data = {
