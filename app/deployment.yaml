@@ -6,17 +6,24 @@ spec:
   selector:
     app: leader-election-python
   ports:
-    - name: "tcp1"
-      protocol: "TCP"
-      nodePort: 30000
-      port: 5010
-      targetPort: 5000
+#    - name: "tcp1"
+#      protocol: "TCP"
+#      nodePort: 30000
+#      port: 5010
+#      targetPort: 5000
 
     - name: "tcp2"
       protocol: "TCP"
       nodePort: 30001
       port: 5011
       targetPort: 5001
+
+    - name: "tcp3"
+      protocol: "TCP"
+      nodePort: 30002
+      port: 5012
+      targetPort: 5002
+
   type: LoadBalancer
 
 ---
@@ -35,16 +42,22 @@ spec:
         app: leader-election-python
     spec:
       containers:
-      - name: leader-election-python-0
-        image: leader-election-python-0:latest
-        imagePullPolicy: Never
-        ports:
-        - containerPort: 5000
+#      - name: leader-election-python-0
+#        image: leader-election-python-0:latest
+#        imagePullPolicy: Never
+#        ports:
+#        - containerPort: 5000
     
       - name: leader-election-python-1
         image: leader-election-python-1:latest
         imagePullPolicy: Never
         ports:
         - containerPort: 5001
+
+      - name: leader-election-python-2
+        image: leader-election-python-2:latest
+        imagePullPolicy: Never
+        ports:
+        - containerPort: 5002
       
 
