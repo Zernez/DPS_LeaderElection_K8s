@@ -1,24 +1,38 @@
-from flask import Flask
-app = Flask(__name__)
+from sqlalchemy import false
+from flask import Flask, jsonify, request
+import os
+import sys
+import threading
+import requests
+from multiprocessing import Value
+import logging
 from bully_logic_0 import logic
 
-node_id = generate_node_id()
-service_register_status = register_service(port_local, node_id)
+
+if logic.port_local == int(os.environ["MUTEX"]):
+    logic.election_local= True
+
+if logic.election_local== True:
+    logic.preamble()
+
+app = Flask(__name__)
 
 @app.route("/")
 def hello():
     return "Hello from Python!"
 
-@app.route('/nodeDetails', methods=['GET'])
+@app.route('/services', methods=['GET'])
 def get_node_details():
-    return jsonify({'node_id': node_id, 'coordinator': coordinator,
-                    'election': election, 'port': port_number}), 200
+    metrics = jsonify({'ID': logic.ID_local, 'port': logic.port_local,'election': logic.election_local})
+    logic.messages_size_local+= sys.getsizeof(metrics)
+    logic.messages_local+= 1
+    return metrics, 200
 
 @app.route('/response', methods=['POST'])
 def response_node():
     data = request.get_json()
     incoming_node_id = data['node_id']
-    self_node_id = node_id
+    self_node_id = logic.ID_local
     if self_node_id > incoming_node_id:
         threading.Thread(target=init, args=[False]).start()
         election = False

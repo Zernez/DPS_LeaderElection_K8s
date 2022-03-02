@@ -27,6 +27,16 @@ spec:
   type: LoadBalancer
 
 ---
+
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: system
+data:
+  mutex: "5011"
+
+---
+
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -47,17 +57,57 @@ spec:
 #        imagePullPolicy: Never
 #        ports:
 #        - containerPort: 5000
+#        env:
+#          - name: MUTEX                         
+#            valueFrom:
+#              configMapKeyRef:
+#                name: system 
+#                key: mutex
+#          - name: PORT_CONFIG
+#            value: "5010"
+#        volumeMounts:
+#        - name: config
+#          mountPath: "/config"
+#          readOnly: true
     
       - name: leader-election-python-1
         image: leader-election-python-1:latest
         imagePullPolicy: Never
         ports:
         - containerPort: 5001
+        env:
+          - name: MUTEX                         
+            valueFrom:
+              configMapKeyRef:
+                name: system 
+                key: mutex
+          - name: PORT_CONFIG
+            value: "5011"
+        volumeMounts:
+        - name: config
+          mountPath: "/config"
+          readOnly: true
 
       - name: leader-election-python-2
         image: leader-election-python-2:latest
         imagePullPolicy: Never
         ports:
         - containerPort: 5002
+        env:
+          - name: MUTEX                         
+            valueFrom:
+              configMapKeyRef:
+                name: system  
+                key: mutex
+          - name: PORT_CONFIG
+            value: "5012"
+        volumeMounts:
+        - name: config
+          mountPath: "/config"
+          readOnly: true
       
+      volumes:
+      - name: config
+        configMap:
+          name: system      
 
