@@ -1,12 +1,11 @@
+from dataclasses import dataclass
 from sklearn import metrics
 from sqlalchemy import false
 from flask import Flask, jsonify, request, render_template
 import os
 import sys
-import threading
 import requests
-from multiprocessing import Value
-import logging
+import time
 from bully_logic_0 import logic
 
 
@@ -18,66 +17,43 @@ if logic.election_local== True:
 
 app = Flask(__name__)
 
-@app.route("/")
-def hello():
-    return "Hello from Python!"
-
-@app.route('/services', methods=['GET'])
-def get_node_details():
-    metrics = jsonify({'ID': logic.ID_local, 'port': logic.port_local,'election': logic.election_local})
-    logic.messages_size_local+= sys.getsizeof(metrics)
-    logic.messages_local+= 1
-    return metrics, 200
-
-@app.route('/response', methods=['POST'])
-def response_node():
+@app.route('/register', methods=['POST'])
+def preamble_register():
     data = request.get_json()
-    incoming_node_id = data['node_id']
-    if logic.ID_local > incoming_node_id:
-        threading.Thread(target=init, args=[False]).start()
-        election = False
-    return jsonify({'Response': 'OK'}), 200
+    json = json.loads(logic.register)
+    json.update(data)
+    return 200
 
 @app.route('/announce', methods=['POST'])
 def announce_coordinator():
     data = request.get_json()
-    coordinator = data['coordinator']
-    logic.coordinator = coordinator
-    print('Coordinator is %s ' % coordinator)
-    return jsonify({'response': 'OK'}), 200
+    coordinator = data['ID_coordinator']
+    for host in logic.register:
+        logic.register[host]['coordinator']= coordinator
+        logic.register[host]['election']= False
+        logic.election_local= False
+    return 200
 
 @app.route('/proxy', methods=['POST'])
 def proxy():
-    with counter.get_lock():
-        counter.value += 1
-        unique_count = counter.value
+    data = request.get_json()
+    candidate = data['candidate_port']
+    if len(candidate)> 1:
+        logic.go_deep(candidate)
+    else:
+        logic.announce(candidate)
+        logic.metrics["time"]= time.clock()-logic.metrics["time"]
+        logic.get_metrics()        
+    return 200
 
-    url = 'http://localhost:%s/response' % port_number
-    if unique_count == 1:
-        data = request.get_json()
-        requests.post(url, json=data)
-
-    return jsonify({'Response': 'OK'}), 200
-
-@app.route('/performance', methods=['POST'])
+@app.route('/performance', methods=['GET'])
 def get_performance():
-
-    return 
+    return jsonify({'time': logic.metrics['time'], 'size': logic.metrics['size'], 'messages': logic.metrics['messages']}), 200
 
 @app.route("/")
 def resume():
-
     coordinator_result= None
     return render_template('index.html', winner= coordinator_result, timelapsed= logic.metrics.time, totalsize= logic.metrics.size, totalmessages= logic.metrics.messages)
-
-def check_coordinator_health():
-    threading.Timer(60.0, check_coordinator_health).start()
-    health = logic.check_health_of_the_service(coordinator)
-    if health == 'failed':
-        logic.start()
-    else:
-        print('Coordinator is alive')
-
 
 if __name__ == "__main__":
     app.run(host='0.0.0.0', port= int(os.environ["INTERNAL_PORT"]))

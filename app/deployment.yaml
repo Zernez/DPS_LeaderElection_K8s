@@ -85,6 +85,8 @@ spec:
             value: "5011"
           - name: INTERNAL_PORT
             value: "5001"
+          - name: NUM_HOST
+            value: "6"
         volumeMounts:
         - name: config
           mountPath: "/config"
@@ -103,6 +105,8 @@ spec:
                 key: mutex
           - name: PORT_CONFIG
             value: "5012"
+          - name: NUM_HOST
+            value: "6"
         volumeMounts:
         - name: config
           mountPath: "/config"

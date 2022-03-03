@@ -18,11 +18,11 @@
 
 --The servers respond at:
 
-(http:\\localhost:5010 -----In development, not available at now)
+(http:\\\localhost:5010 -----In development, not available at now)
 
-http:\\localhost:5011
+http:\\\localhost:5011
 
-http:\\localhost:5012
+http:\\\localhost:5012
 
 For stop running containers and kubernetes system:
 
@@ -38,7 +38,7 @@ The main files bully_logic_0.py to be refined and main_server_0.py to be finishe
 
 In the deployment.yaml, in "data: mutex: 5011" a little below "kind: ConfigMap", is possible to change where the program start the bully election for the first time.
 
-The program will return the result and metrics on http:\\localhost:any_port_do_you_want
+The program will return the result and metrics on http:\\\localhost:any_port_do_you_want
 
 
 
