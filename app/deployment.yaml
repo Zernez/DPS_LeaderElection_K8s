@@ -83,6 +83,8 @@ spec:
                 key: mutex
           - name: PORT_CONFIG
             value: "5011"
+          - name: INTERNAL_PORT
+            value: "5001"
         volumeMounts:
         - name: config
           mountPath: "/config"

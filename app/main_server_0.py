@@ -42,7 +42,7 @@ def response_node():
 def announce_coordinator():
     data = request.get_json()
     coordinator = data['coordinator']
-    bully.coordinator = coordinator
+    logic.coordinator = coordinator
     print('Coordinator is %s ' % coordinator)
     return jsonify({'response': 'OK'}), 200
 
@@ -59,16 +59,21 @@ def proxy():
 
     return jsonify({'Response': 'OK'}), 200
 
+@app.route('/performance', methods=['POST'])
+def get_performance():
+
+    return 
+
 def check_coordinator_health():
     threading.Timer(60.0, check_coordinator_health).start()
-    health = check_health_of_the_service(coordinator)
+    health = logic.check_health_of_the_service(coordinator)
     if health == 'failed':
-        init()
+        logic.start()
     else:
         print('Coordinator is alive')
 
 
 if __name__ == "__main__":
-    app.run(host='0.0.0.0', port= 5000)
+    app.run(host='0.0.0.0', port= int(os.environ["INTERNAL_PORT"]))
 
 

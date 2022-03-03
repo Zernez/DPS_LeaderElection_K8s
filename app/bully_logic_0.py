@@ -15,10 +15,12 @@ class logic:
     time_local= None
     messages_size_local= 0
     messages_local= 0
+    time_elepsed_local= 0
     hosts_ports= [5010,5011,5012,5013,5014,5015]
     ids_nodes= []
     metrics = {
-            "time": None,
+            "time": 0,
+            "size": 0,
             "messages": 0
         }
 
@@ -45,16 +47,15 @@ class logic:
 
     def start():
 
-        if logic.election_local== True:
-            logic.time_local= 0
-        
+        logic.time_elepsed_local= time.clock()
+
         detail=logic.get_details(logic.hosts_ports)
         
         high_ID= logic.get_higher_nodes(detail,logic.ID_local)
 
         logic.election(high_ID, logic.ID_local)
-        
 
+        logic.time_elepsed_local= time.clock() - logic.time_elepsed_local
 
     def generate_node_id():
         millis = int(round(time.time() * 10))
@@ -62,6 +63,10 @@ class logic:
         return node_id
 
     def register_service(port_id, node_id):
+
+        status= logic.check_health_of_the_service(port_id)
+        if status == "Failed":
+            return   
         
         url = logic.url_local + "/jsonservice/register"
         
@@ -74,12 +79,7 @@ class logic:
     
         ports= logic.get_ports_of_nodes()
         ids= logic.get_all_ids()
-        
-        for port in ports:
-            status= logic.check_health_of_the_service(port)
-            if status == "Failed":
-                print ("Host with port: %s is failed" %port)          
- 
+               
         if port_id == logic.port_local:
             logic.ID_local= data["ID"]       
 
@@ -87,27 +87,27 @@ class logic:
         return put_request.status_code
 
 
-    def check_health_of_the_service(self, port):
+    def check_health_of_the_service(port):
         print('Checking for host stay-alive')   
-        url = self.url_local + port + '/services/health'
+        url = logic.url_local + port + '/services/health'
         response = requests.get(url)
         if response.status_code != 200:
             service_status = 'Failed'
         print('Service status: %s' % service_status)
         return service_status
 
-    def get_ports_of_nodes(self):
+    def get_ports_of_nodes():
         ports_list = []
-        response = requests.get(self.url_local + self.port_local + '/services')
+        response = requests.get(logic.url_local + logic.port_local + '/services')
         nodes = json.loads(response.text)
         for host in nodes:
             port = host['port']
             ports_list.append(port)
         return ports_list
 
-    def get_all_ids(self):
+    def get_all_ids():
         id_list = []
-        response = requests.get(self.url_local + self.port_local + '/services')
+        response = requests.get(logic.url_local + logic.port_local + '/services')
         nodes = json.loads(response.text)
         for host in nodes:
             id = host['ID']
