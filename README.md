@@ -38,6 +38,8 @@ The main files bully_logic_0.py to be refined and main_server_0.py to be finishe
 
 In the deployment.yaml, in "data: mutex: 5011" a little below "kind: ConfigMap", is possible to change where the program start the bully election for the first time.
 
+The program will return the result and metrics on http:\\localhost:any_ports_do_you_want
+
 
 
 

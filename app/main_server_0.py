@@ -1,5 +1,6 @@
+from sklearn import metrics
 from sqlalchemy import false
-from flask import Flask, jsonify, request
+from flask import Flask, jsonify, request, render_template
 import os
 import sys
 import threading
@@ -32,8 +33,7 @@ def get_node_details():
 def response_node():
     data = request.get_json()
     incoming_node_id = data['node_id']
-    self_node_id = logic.ID_local
-    if self_node_id > incoming_node_id:
+    if logic.ID_local > incoming_node_id:
         threading.Thread(target=init, args=[False]).start()
         election = False
     return jsonify({'Response': 'OK'}), 200
@@ -63,6 +63,12 @@ def proxy():
 def get_performance():
 
     return 
+
+@app.route("/")
+def resume():
+
+    coordinator_result= None
+    return render_template('index.html', winner= coordinator_result, timelapsed= logic.metrics.time, totalsize= logic.metrics.size, totalmessages= logic.metrics.messages)
 
 def check_coordinator_health():
     threading.Timer(60.0, check_coordinator_health).start()
