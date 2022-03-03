@@ -52,7 +52,7 @@ def get_performance():
 
 @app.route("/")
 def resume():
-    coordinator_result= None
+    coordinator_result= logic.register[0]['coordinator']
     return render_template('index.html', winner= coordinator_result, timelapsed= logic.metrics.time, totalsize= logic.metrics.size, totalmessages= logic.metrics.messages)
 
 if __name__ == "__main__":
