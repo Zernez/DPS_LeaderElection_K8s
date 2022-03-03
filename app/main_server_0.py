@@ -1,24 +1,38 @@
-from flask import Flask
-app = Flask(__name__)
+from sqlalchemy import false
+from flask import Flask, jsonify, request
+import os
+import sys
+import threading
+import requests
+from multiprocessing import Value
+import logging
 from bully_logic_0 import logic
 
-node_id = generate_node_id()
-service_register_status = register_service(port_local, node_id)
+
+if logic.port_local == int(os.environ["MUTEX"]):
+    logic.election_local= True
+
+if logic.election_local== True:
+    logic.preamble()
+
+app = Flask(__name__)
 
 @app.route("/")
 def hello():
     return "Hello from Python!"
 
-@app.route('/nodeDetails', methods=['GET'])
+@app.route('/services', methods=['GET'])
 def get_node_details():
-    return jsonify({'node_id': node_id, 'coordinator': coordinator,
-                    'election': election, 'port': port_number}), 200
+    metrics = jsonify({'ID': logic.ID_local, 'port': logic.port_local,'election': logic.election_local})
+    logic.messages_size_local+= sys.getsizeof(metrics)
+    logic.messages_local+= 1
+    return metrics, 200
 
 @app.route('/response', methods=['POST'])
 def response_node():
     data = request.get_json()
     incoming_node_id = data['node_id']
-    self_node_id = node_id
+    self_node_id = logic.ID_local
     if self_node_id > incoming_node_id:
         threading.Thread(target=init, args=[False]).start()
         election = False
@@ -28,7 +42,7 @@ def response_node():
 def announce_coordinator():
     data = request.get_json()
     coordinator = data['coordinator']
-    bully.coordinator = coordinator
+    logic.coordinator = coordinator
     print('Coordinator is %s ' % coordinator)
     return jsonify({'response': 'OK'}), 200
 
@@ -45,16 +59,21 @@ def proxy():
 
     return jsonify({'Response': 'OK'}), 200
 
+@app.route('/performance', methods=['POST'])
+def get_performance():
+
+    return 
+
 def check_coordinator_health():
     threading.Timer(60.0, check_coordinator_health).start()
-    health = check_health_of_the_service(coordinator)
+    health = logic.check_health_of_the_service(coordinator)
     if health == 'failed':
-        init()
+        logic.start()
     else:
         print('Coordinator is alive')
 
 
 if __name__ == "__main__":
-    app.run(host='0.0.0.0', port= 5000)
+    app.run(host='0.0.0.0', port= int(os.environ["INTERNAL_PORT"]))
 
 
