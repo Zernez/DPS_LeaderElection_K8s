@@ -6,20 +6,20 @@ spec:
   selector:
     app: leader-election-python
   ports:
-    - name: "tcp1"
-      protocol: "TCP"
+    - name: tcp0
+      protocol: TCP
       nodePort: 30000
       port: 5010
       targetPort: 5000
 
-    - name: "tcp2"
-      protocol: "TCP"
+    - name: tcp1
+      protocol: TCP
       nodePort: 30001
       port: 5011
       targetPort: 5001
 
-    - name: "tcp3"
-      protocol: "TCP"
+    - name: tcp2
+      protocol: TCP
       nodePort: 30002
       port: 5012
       targetPort: 5002

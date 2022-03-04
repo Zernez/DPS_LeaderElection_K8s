@@ -1,60 +1,62 @@
-from dataclasses import dataclass
 from flask import Flask, jsonify, request, render_template
 import os
 import sys
 import requests
 import time
+import json
 from bully_logic import logic
 
+bully = logic()
 
-if logic.port_local == int(os.environ["MUTEX"]):
-    logic.election_local= True
+if bully.port_local == int(os.environ["MUTEX"]):
+    bully.election_local= True
 
-if logic.election_local== True:
-    logic.preamble()
+if bully.election_local== True:
+    bully.preamble()
 
 app = Flask(__name__)
 
 @app.route('/register', methods=['POST'])
 def preamble_register():
     data = request.get_json()
-    json = json.loads(logic.register)
-    json.update(data)
-    return 200
+#    jsoned = json.dumps(bully.register)
+#    jsoned = json.load(jsoned)
+    bully.register.update(data)
+    return 'OK', 200
 
 @app.route('/announce', methods=['POST'])
 def announce_coordinator():
     data = request.get_json()
     coordinator = data['ID_coordinator']
-    for host in logic.register:
-        logic.register[host]['coordinator']= coordinator
-        logic.register[host]['election']= False
-        logic.election_local= False
-    return 200
+    for host in bully.register:
+        bully.register[host]['coordinator']= coordinator
+        bully.register[host]['election']= False
+        bully.election_local= False
+    return 'OK', 200
 
 @app.route('/proxy', methods=['POST'])
 def proxy():
     data = request.get_json()
     candidate = data['candidate_port']
     if len(candidate)> 1:
-        logic.go_deep(candidate)
+        bully.go_deep(candidate)
     else:
-        logic.announce(candidate)
-        logic.metrics["time"]= time.clock()-logic.metrics["time"]
-        logic.get_metrics()        
-    return 200
+        bully.announce(candidate)
+        bully.metrics["time"]= time.clock()-bully.metrics["time"]
+        bully.get_metrics()        
+    return 'OK', 200
 
 @app.route('/performance', methods=['GET'])
 def get_performance():
-    return jsonify({'time': logic.metrics['time'], 'size': logic.metrics['size'], 'messages': logic.metrics['messages']}), 200
+    return jsonify({'time': bully.metrics['time'], 'size': bully.metrics['size'], 'messages': bully.metrics['messages']}), 200
 
 @app.route("/")
 def resume():
-    if logic.register[0]['coordinator'] is None:
+    if bully.coordinator_local is None:
         coordinator_result= "No coordinator for now..."
     else:
-        coordinator_result= logic.register[0]['coordinator']
-    return render_template('index.html', winner= coordinator_result, timelapsed= logic.metrics.time, totalsize= logic.metrics.size, totalmessages= logic.metrics.messages)
+        coordinator_result= bully.coordinator_local
+    return render_template('index.html', winner= coordinator_result, timelapsed= bully.metrics.time, totalsize= bully.metrics.size, totalmessages= bully.metrics.messages)
 
 if __name__ == "__main__":
     app.run(host='0.0.0.0', port= int(os.environ["INTERNAL_PORT"]))
