@@ -32,9 +32,7 @@ For stop running containers and kubernetes system:
 
 --Attention!!!!!!!!!!!!!!!!! Host 0 is in development and is not running!!!!!!! The only two available is Host 1 and Host 2
 
-# --03/03 Update! The main files bully_logic_0.py and main_server_0.py are finished in v2 branch with metrics harvesting feature, but need test and maybe will be error on use of class variable inside the same class
-
-# All the kubernetes and docker environment has to be a little modified to this new files: bully_logic_0.py and main_server_0.py for a system-test and add more containers
+# --03/03 Update! The main files bully_logic_0.py and main_server_0.py are finished in v2 branch with metrics harvesting feature, test remain to fix a problem with go_deep() function
 
 In the deployment.yaml, in "data: mutex: 5011" a little below "kind: ConfigMap", is possible to change where the program start the bully election for the first time.
 
