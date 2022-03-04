@@ -86,6 +86,34 @@ class logic:
         put_request = requests.put(url, json=data)              
         return put_request.status_code
 
+    def get_details(ports_of_all_nodes):
+        node_details = []
+        for each_node in ports_of_all_nodes:
+            url = 'http://127.0.0.1:%s/services' % ports_of_all_nodes[each_node]
+            data = requests.get(url)
+            node_details.append(data.json())
+        return node_details
+
+    def get_higher_nodes(node_details, node_id):
+        higher_node_array = []
+        for each in node_details:
+            if each['ID'] > node_id:
+                higher_node_array.append(each['port'])
+        return higher_node_array
+
+#------------------------
+
+    def election(higher_nodes_array, node_id):
+        status_code_array = []
+        for each_port in higher_nodes_array:
+            url = logic.url_local + '%s/proxy' % each_port
+            data = {
+                "node_id": node_id
+            }
+            post_response = requests.post(url, json=data)
+            status_code_array.append(post_response.status_code)
+        if 200 in status_code_array:
+            return 200
 
     def check_health_of_the_service(port):
         print('Checking for host stay-alive')   
@@ -114,25 +142,6 @@ class logic:
             id_list.append(id)
         return id_list
 
-    def get_higher_nodes(node_details, node_id):
-        higher_node_array = []
-        for each in node_details:
-            if each['ID'] > node_id:
-                higher_node_array.append(each['port'])
-        return higher_node_array
-
-    def election(higher_nodes_array, node_id):
-        status_code_array = []
-        for each_port in higher_nodes_array:
-            url = logic.url_local + '%s/proxy' % each_port
-            data = {
-                "node_id": node_id
-            }
-            post_response = requests.post(url, json=data)
-            status_code_array.append(post_response.status_code)
-        if 200 in status_code_array:
-            return 200
-
     def ready_for_election(ports_of_all_nodes, self_election, self_coordinator):
         coordinator_array = []
         election_array = []
@@ -148,14 +157,6 @@ class logic:
             return False
         else:
             return True
-
-    def get_details(ports_of_all_nodes):
-        node_details = []
-        for each_node in ports_of_all_nodes:
-            url = 'http://127.0.0.1:%s/services' % ports_of_all_nodes[each_node]
-            data = requests.get(url)
-            node_details.append(data.json())
-        return node_details
 
     def announce(coordinator):
         all_nodes = logic.get_ports_of_nodes()
