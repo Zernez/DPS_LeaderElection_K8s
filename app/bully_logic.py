@@ -1,6 +1,4 @@
-from asyncio.windows_events import NULL
 import time
-from time import sleep
 import json
 import requests
 from random import randint
@@ -64,6 +62,8 @@ class logic:
             logic.metrics["time"]= time.clock() - logic.metrics["time"]
 
             logic.get_metrics()
+        
+        return
     
     def go_deep(try_port):
 
@@ -94,14 +94,14 @@ class logic:
         return data_port    
     
     def generate_node_id():
-        millis = int(round(time.time() * 10))
-        node_id = millis + randint(0, 2000)
+        millis = int(round(time.time()))
+        node_id = millis + randint(0, 20000)
         return node_id
 
     def register_service(host, port_id, node_id):
-        status= logic.check_health_of_the_service(port_id)
-        if status == "Failed":
-            return status        
+#        status= logic.check_health_of_the_service(port_id)
+#        if status == "Failed":
+#            return status        
         data = {
             "ID": node_id,
             "port": port_id,
@@ -110,7 +110,7 @@ class logic:
         }    
         if port_id == logic.port_local:
             logic.ID_local= data["ID"]
-        url = logic.url_local + host + "/register"
+        url = logic.url_local + str(host) + "/register"
         put_request = requests.post(url, json=data)              
         return put_request.status_code
 
@@ -154,15 +154,15 @@ class logic:
              
         return "Redirect"
 
-    def check_health_of_the_service(port):
-        print('Checking for host stay-alive')   
-        url = logic.url_local + port + '/services/health'
-        response = requests.get(url)
-        if response.status_code != 200:
-            service_status = 'Failed'
-        print('Service status: %s' % service_status)
-        return service_status
-
+#    def check_health_of_the_service(port):
+#        print('Checking for host stay-alive')   
+#        url = logic.url_local + port + '/services/health'
+#        response = requests.get(url)
+#        if response.status_code != 200:
+#            service_status = 'Failed'
+#        print('Service status: %s' % service_status)
+#        return service_status
+   
     def announce(coordinator):
         all_nodes = logic.hosts_ports
         data = {
@@ -173,6 +173,7 @@ class logic:
             logic.metrics.messages+= 1
             url = logic.url_local +'%s/announce' % all_nodes[each_node]
             requests.post(url, json=data)
+        return requests.status_code
 
     def get_metrics():
         details = []

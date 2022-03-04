@@ -1,12 +1,10 @@
 from dataclasses import dataclass
-from sklearn import metrics
-from sqlalchemy import false
 from flask import Flask, jsonify, request, render_template
 import os
 import sys
 import requests
 import time
-from bully_logic_0 import logic
+from bully_logic import logic
 
 
 if logic.port_local == int(os.environ["MUTEX"]):
@@ -52,7 +50,10 @@ def get_performance():
 
 @app.route("/")
 def resume():
-    coordinator_result= logic.register[0]['coordinator']
+    if logic.register[0]['coordinator'] is None:
+        coordinator_result= "No coordinator for now..."
+    else:
+        coordinator_result= logic.register[0]['coordinator']
     return render_template('index.html', winner= coordinator_result, timelapsed= logic.metrics.time, totalsize= logic.metrics.size, totalmessages= logic.metrics.messages)
 
 if __name__ == "__main__":

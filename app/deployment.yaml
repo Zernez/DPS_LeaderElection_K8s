@@ -6,11 +6,11 @@ spec:
   selector:
     app: leader-election-python
   ports:
-#    - name: "tcp1"
-#      protocol: "TCP"
-#      nodePort: 30000
-#      port: 5010
-#      targetPort: 5000
+    - name: "tcp1"
+      protocol: "TCP"
+      nodePort: 30000
+      port: 5010
+      targetPort: 5000
 
     - name: "tcp2"
       protocol: "TCP"
@@ -34,7 +34,7 @@ metadata:
   name: system
 data:
   mutex: "5011"
-
+  num_host: "3"
 ---
 
 apiVersion: apps/v1
@@ -52,23 +52,30 @@ spec:
         app: leader-election-python
     spec:
       containers:
-#      - name: leader-election-python-0
-#        image: leader-election-python-0:latest
-#        imagePullPolicy: Never
-#        ports:
-#        - containerPort: 5000
-#        env:
-#          - name: MUTEX                         
-#            valueFrom:
-#              configMapKeyRef:
-#                name: system 
-#                key: mutex
-#          - name: PORT_CONFIG
-#            value: "5010"
-#        volumeMounts:
-#        - name: config
-#          mountPath: "/config"
-#          readOnly: true
+      - name: leader-election-python-0
+        image: leader-election-python-0:latest
+        imagePullPolicy: Never
+        ports:
+        - containerPort: 5000
+        env:
+          - name: NUM_HOST                         
+            valueFrom:
+              configMapKeyRef:
+                name: system 
+                key: num_host
+          - name: MUTEX                         
+            valueFrom:
+              configMapKeyRef:
+                name: system 
+                key: mutex
+          - name: PORT_CONFIG
+            value: "5010"
+          - name: INTERNAL_PORT
+            value: "5000"
+        volumeMounts:
+        - name: config
+          mountPath: "/config"
+          readOnly: true
     
       - name: leader-election-python-1
         image: leader-election-python-1:latest
@@ -76,6 +83,11 @@ spec:
         ports:
         - containerPort: 5001
         env:
+          - name: NUM_HOST                         
+            valueFrom:
+              configMapKeyRef:
+                name: system 
+                key: num_host
           - name: MUTEX                         
             valueFrom:
               configMapKeyRef:
@@ -85,8 +97,6 @@ spec:
             value: "5011"
           - name: INTERNAL_PORT
             value: "5001"
-          - name: NUM_HOST
-            value: "6"
         volumeMounts:
         - name: config
           mountPath: "/config"
@@ -98,6 +108,11 @@ spec:
         ports:
         - containerPort: 5002
         env:
+          - name: NUM_HOST                         
+            valueFrom:
+              configMapKeyRef:
+                name: system 
+                key: num_host
           - name: MUTEX                         
             valueFrom:
               configMapKeyRef:
@@ -105,8 +120,8 @@ spec:
                 key: mutex
           - name: PORT_CONFIG
             value: "5012"
-          - name: NUM_HOST
-            value: "6"
+          - name: INTERNAL_PORT
+            value: "5002"
         volumeMounts:
         - name: config
           mountPath: "/config"
