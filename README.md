@@ -1,5 +1,7 @@
 # DPS-Assignment 1
 
+# --05/03 Update! The main files bully_logic.py and main_server.py are finished in v2 branch (will merge in main) with metrics harvesting feature, system test ok with 5 hosts!!
+
 --For create the images (only the first time or when modifiy the code of container), inside the folder "app", firstly:
 
 (`$docker build -f Dockerfile_host_0 -t leader-election-python-0:latest .` -----In development, not to run this command at now)
@@ -18,31 +20,22 @@
 
 --The servers respond at:
 
-(http:\\localhost:5010 -----In development, not available at now)
+`http:\\\localhost:<any_port_do_you_want>`
 
-http:\\localhost:5011
+--For stop running containers and kubernetes system:
 
-http:\\localhost:5012
+`$kubectl delete deployment leader-election-python --grace-period=2`
 
-For stop running containers and kubernetes system:
+--In the deployment.yaml, in "data: mutex: 5011" a little below "kind: ConfigMap", is possible to change where the program start the bully election for the first time.
 
-`$kubectl delete deployment leader-election-python --grace-period=5`
+--In the deployment.yaml, in "data: num_host: 5" a little below "kind: ConfigMap", is obligatory to set when change the number of container 
 
---Decided for classic Flask server with JSON as messages
+--The program will return the result and metrics on http:\\\localhost:<any_port_do_you_want>, the winner will show the metrics
 
---Attention!!!!!!!!!!!!!!!!! Host 0 is in development and is not running!!!!!!! The only two available is Host 1 and Host 2
 
-# --03/03 Update! The main files bully_logic_0.py and main_server_0.py are finished in v2 branch with metrics harvesting feature, but need test and maybe will be error on use of class variable inside the same class
 
-# All the kubernetes and docker environment has to be a little modified to this new files: bully_logic_0.py and main_server_0.py for a system-test and add more containers in v2 branch
 
-Now there are setted enviroment variable that is used for setting every container, and with this we can use main_server.py and bully_logic.py for every container.
 
-The main files bully_logic_0.py to be refined and main_server_0.py to be finished, metrics measure to be deployed.
-
-In the deployment.yaml, in "data: mutex: 5011" a little below "kind: ConfigMap", is possible to change where the program start the bully election for the first time.
-
-The program will return the result and metrics on http:\\localhost:any_port_do_you_want
 
 
 
