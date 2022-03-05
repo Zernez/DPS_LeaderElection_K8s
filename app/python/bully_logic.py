@@ -1,9 +1,11 @@
+from time import perf_counter
 import time
 import json
 import requests
 from random import randint
 import sys
 import os
+import logging
 
 class logic:
 
@@ -12,12 +14,15 @@ class logic:
     ID_local= None
     election_local= False
     coordinator_local= None
+    port_coordinator_local= None
     ids_nodes= []
     hosts_ports= []
     number_of_hosts= int(os.environ["NUM_HOST"])
+    threads= []
     register= [dict() for x in range(number_of_hosts)]
     metrics = {
-            "time": 0,
+            "time_start": 0,
+            "time_finish": 0,
             "size": 0,
             "messages": 0
             }
@@ -34,8 +39,7 @@ class logic:
                 candidate = self.generate_node_id()
 
             self.ids_nodes.append(candidate)
-
-
+        
         for host in self.hosts_ports:
             id_num= 0
             for port_id in self.hosts_ports:
@@ -48,7 +52,7 @@ class logic:
 
     def start(self):
 
-        self.metrics["time"]= time.clock()
+        self.metrics["time_start"]= perf_counter()
 
         detail=self.get_details(self.hosts_ports)
         
@@ -60,32 +64,34 @@ class logic:
 
             self.announce(winner)
 
-            self.metrics["time"]= time.clock() - self.metrics["time"]
+            self.metrics["time_finish"]= perf_counter()
 
             self.get_metrics()
         
         return
     
-    def go_deep(self):
+    def go_deep(self, high_IDs):
 
-        detail=self.get_details(self.hosts_ports)
+        if not self.hosts_ports:
+            self.hosts_ports= self.define_ports()
 
-        print (self.ID_local)
-        print (detail)
-        
-        high_IDs= self.get_higher_nodes(detail)
+        if not self.ids_nodes:
+            self.ids_nodes= self.define_ids()
 
         winner= self.election(high_IDs)
+
+#       for thread in self.threads:
+#           thread.join()
 
         if winner != "Redirect":
 
             self.announce(winner)
 
-            self.metrics["time"]= time.clock() - self.metrics["time"]
+            self.metrics["time_finish"]= perf_counter()
 
             self.get_metrics()
 
-        return winner
+        return
     
     def define_ports(self):
         count= self.number_of_hosts
@@ -95,7 +101,15 @@ class logic:
             data_port.append(first)
             first+= 1
             count-= 1
-        return data_port    
+        return data_port
+
+    def define_ids(self):
+        data= []  
+        for ids in self.register:
+            if ids['port']== self.port_local:
+                self.ID_local= ids['ID']    
+            data.append(ids['ID'])
+        return data     
     
     def generate_node_id(self):
         millis = int(round(time.time()))
@@ -105,22 +119,28 @@ class logic:
     def register_service(self, host, port_id, node_id, n):
 #        status= self.check_health_of_the_service(port_id)
 #        if status == "Failed":
-#            return status        
+#            return status
+        if host == port_id:
+            tempID= node_id
+        else:
+            tempID= None      
         data = {
             "ID": node_id,
             "port": port_id,
             "coordinator": None,
             "election": self.election_local,
-            "seq": n
+            "seq": n,
+            "ID_local": tempID
         }
 
         url = self.url_local + str(host) + "/register"           
         
         if host == self.port_local:
-            self.ID_local= node_id
+            if port_id == self.port_local:
+                self.ID_local= node_id
             self.register[n].update(data)
             return "OK", 200
-        else: 
+        else:
             put_request = requests.post(url, json=data)              
 
         return put_request.status_code
@@ -149,12 +169,17 @@ class logic:
             return self.ID_local
 
         for each_port in higher_nodes_array:
-            url = self.url_local + '%s/proxy' % each_port
+            url = self.url_local + str(each_port) + '/redirect'
+            candidates= higher_nodes_array
+            candidates.remove(each_port)
+            if not candidates:
+                candidates= None
+            
             data = {
-                "candidate_port": each_port
+                "candidate_port": candidates
                 }
-            self.metrics["size"]+= sys.getsizeof(data)
-            self.metrics["messages"]+= 1
+            self.metrics['size']+= sys.getsizeof(data)
+            self.metrics['messages']+= 1
             post_response = requests.post(url, json=data)
             status_code_array.append(post_response.status_code)
         
@@ -165,7 +190,7 @@ class logic:
 
 #    def check_health_of_the_service(port):
 #        print('Checking for host stay-alive')   
-#        url = self.url_local + port + '/services/health'
+#        url = self.url_local + 'port' + '/services/health'
 #        response = requests.get(url)
 #        if response.status_code != 200:
 #            service_status = 'Failed'
@@ -174,9 +199,9 @@ class logic:
    
     def announce(self, coordinator):
         data = {
-            'ID_coordinator': coordinator
+            'ID_coordinator': coordinator,
+            'port_coordinator': self.port_local
         }
-
         for each_node in self.hosts_ports:
             if each_node == self.port_local:
                 n= 0  
@@ -186,10 +211,11 @@ class logic:
                     n+= 1
                 self.election_local= False
                 self.coordinator_local= coordinator
+                self.port_coordinator_local= self.port_local
             else:
-                self.metrics["size"]+= sys.getsizeof(data)
-                self.metrics["messages"]+= 1
-                url = self.url_local +'%s/announce' % each_node
+                self.metrics['size']+= sys.getsizeof(data)
+                self.metrics['messages']+= 1
+                url = self.url_local + str(each_node) + '/announce'
                 requests.post(url, json=data)
         return {'Response': 'OK'}, 200
 
@@ -197,9 +223,15 @@ class logic:
         details = []
         for each_port in self.hosts_ports:
             if each_port != self.port_local: 
-                url = self.url_local + '%s/performance' % each_port
+                url = self.url_local + str(each_port) + '/performance'
                 data = requests.get(url).json()          
-                self.metrics['time'] += data['time']
+                self.metrics['time_finish'] = self.metrics['time_finish'] - self.metrics['time_start']
                 self.metrics['size'] += data['size']
                 self.metrics['messages'] += data['messages']
+        logging.basicConfig(filename='app.log', filemode='w', level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+        logging.info('Metrics for test with %s machine', self.number_of_hosts)                
+        logging.info('Time elspased for find the coordinator is %s', self.metrics['size'])
+        logging.info('Total size of messages exchanged are %s', self.metrics['messages'])
+        logging.info('Total number of messages exchanged are %s', self.metrics['messages'])
+        logging.shutdown()
         return details

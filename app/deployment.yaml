@@ -24,6 +24,18 @@ spec:
       port: 5012
       targetPort: 5002
 
+    - name: tcp3
+      protocol: TCP
+      nodePort: 30003
+      port: 5013
+      targetPort: 5003
+
+    - name: tcp4
+      protocol: TCP
+      nodePort: 30010
+      port: 5014
+      targetPort: 5004
+
   type: LoadBalancer
 
 ---
@@ -34,7 +46,7 @@ metadata:
   name: system
 data:
   mutex: "5011"
-  num_host: "3"
+  num_host: "5"
 ---
 
 apiVersion: apps/v1
@@ -122,6 +134,56 @@ spec:
             value: "5012"
           - name: INTERNAL_PORT
             value: "5002"
+        volumeMounts:
+        - name: config
+          mountPath: "/config"
+          readOnly: true
+
+      - name: leader-election-python-3
+        image: leader-election-python-3:latest
+        imagePullPolicy: Never
+        ports:
+        - containerPort: 5003
+        env:
+          - name: NUM_HOST                         
+            valueFrom:
+              configMapKeyRef:
+                name: system 
+                key: num_host
+          - name: MUTEX                         
+            valueFrom:
+              configMapKeyRef:
+                name: system  
+                key: mutex
+          - name: PORT_CONFIG
+            value: "5013"
+          - name: INTERNAL_PORT
+            value: "5003"
+        volumeMounts:
+        - name: config
+          mountPath: "/config"
+          readOnly: true
+
+      - name: leader-election-python-4
+        image: leader-election-python-4:latest
+        imagePullPolicy: Never
+        ports:
+        - containerPort: 5004
+        env:
+          - name: NUM_HOST                         
+            valueFrom:
+              configMapKeyRef:
+                name: system 
+                key: num_host
+          - name: MUTEX                         
+            valueFrom:
+              configMapKeyRef:
+                name: system  
+                key: mutex
+          - name: PORT_CONFIG
+            value: "5014"
+          - name: INTERNAL_PORT
+            value: "5004"
         volumeMounts:
         - name: config
           mountPath: "/config"

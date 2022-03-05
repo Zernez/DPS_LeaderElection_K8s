@@ -6,4 +6,4 @@ ADD . /app/
 RUN pip install -r requirements.txt
 
 EXPOSE 5001
-CMD ["python", "/app/main_server.py"]
+CMD ["python", "/app/python/main_server.py"]
