@@ -20,11 +20,7 @@
 
 --The servers respond at:
 
-(http:\\\localhost:5010 -----In development, not available at now)
-
-http:\\\localhost:5011
-
-http:\\\localhost:5012
+`http:\\\localhost:<any_port_do_you_want>`
 
 --For stop running containers and kubernetes system:
 
