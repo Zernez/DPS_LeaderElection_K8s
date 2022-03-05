@@ -1,5 +1,7 @@
 # DPS-Assignment 1
 
+# --05/03 Update! The main files bully_logic.py and main_server.py are finished in v2 branch (will merge in main) with metrics harvesting feature, system test ok with 5 hosts!!
+
 --For create the images (only the first time or when modifiy the code of container), inside the folder "app", firstly:
 
 (`$docker build -f Dockerfile_host_0 -t leader-election-python-0:latest .` -----In development, not to run this command at now)
@@ -24,19 +26,22 @@ http:\\\localhost:5011
 
 http:\\\localhost:5012
 
-For stop running containers and kubernetes system:
+--For stop running containers and kubernetes system:
 
-`$kubectl delete deployment leader-election-python --grace-period=5`
+`$kubectl delete deployment leader-election-python --grace-period=2`
 
---Decided for classic Flask server with JSON as messages
+--In the deployment.yaml, in "data: mutex: 5011" a little below "kind: ConfigMap", is possible to change where the program start the bully election for the first time.
 
---Attention!!!!!!!!!!!!!!!!! Host 0 is in development and is not running!!!!!!! The only two available is Host 1 and Host 2
+--In the deployment.yaml, in "data: num_host: 5" a little below "kind: ConfigMap", is obligatory to set when change the number of container 
 
-# --03/03 Update! The main files bully_logic.py and main_server.py are finished in v2 branch with metrics harvesting feature, system test ok, remain to fix a problem with go_deep() function (maybe threading is needed) 
+--The program will return the result and metrics on http:\\\localhost:<any_port_do_you_want>, the winner will show the metrics
 
-In the deployment.yaml, in "data: mutex: 5011" a little below "kind: ConfigMap", is possible to change where the program start the bully election for the first time.
 
-The program will return the result and metrics on http:\\\localhost:any_port_do_you_want
+
+
+
+
+
 
 
 
