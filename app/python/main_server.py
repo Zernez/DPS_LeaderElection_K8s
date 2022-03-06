@@ -1,7 +1,9 @@
 from flask import Flask, jsonify, request, render_template, send_file, send_from_directory
+import time
+from time import perf_counter
 from threading import Thread
 import os
-from bully_logic import logic
+from bully_logic_improved import logic
 
 app = Flask(__name__)
 
@@ -9,6 +11,7 @@ bully = logic()
 
 if bully.port_local == int(os.environ["MUTEX"]):
     bully.election_local= True
+    time.sleep(3)
 
 if bully.election_local== True:
     bully.preamble()
@@ -42,11 +45,7 @@ def announce_coordinator():
 def redirecting_election():
     data = request.get_json()
     candidate = data['candidate_port']
-#    if candidate is None:
-#        bully.announce(bully.ID_local)
-#        bully.metrics["time"]= perf_counter()-bully.metrics["time"]
-#        bully.get_metrics()    
-#    else:
+    bully.election_local= True
     thread= Thread(target=bully.go_deep, args=[candidate])
     bully.threads.append(thread)
     thread.start()    
