@@ -154,7 +154,7 @@ class logic:
             except:
                 print("Post request fail")
             else:
-                code = 500       
+                code = 500   
 
         return post_response.status_code
 
