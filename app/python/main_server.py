@@ -3,7 +3,7 @@ import time
 from time import perf_counter
 from threading import Thread
 import os
-from bully_logic_improved import logic
+from bully_logic import logic
 
 app = Flask(__name__)
 
@@ -69,7 +69,7 @@ def resume():
 
 @app.route('/download')
 def download():
-        return send_from_directory(directory='', filename=app, as_attachment=True)
+        return app.send_static_file('app.log')
 
 if __name__ == "__main__":
     app.run(host='0.0.0.0', port= int(os.environ["INTERNAL_PORT"]))
