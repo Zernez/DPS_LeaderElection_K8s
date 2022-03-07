@@ -279,4 +279,6 @@ class logic:
         logging.info('Total size of messages exchanged are %s', self.metrics['messages'])
         logging.info('Total number of messages exchanged are %s', self.metrics['messages'])
         logging.shutdown()
+        os.system('mkdir /app/python/static')
+        os.system('mv /app/app.log /app/python/static')
         return details
