@@ -11,7 +11,7 @@ bully = logic()
 
 if bully.port_local == int(os.environ["MUTEX"]):
     bully.election_local= True
-    time.sleep(3)
+    time.sleep(5)
 
 if bully.election_local== True:
     bully.preamble()

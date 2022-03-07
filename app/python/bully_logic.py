@@ -148,10 +148,17 @@ class logic:
                 self.ID_local= node_id
             self.register[n].update(data)
             return {'Response': 'OK'}, 200
-        else:
-            put_request = requests.post(url, json=data)              
+        else: 
+            try:
+                post_response = requests.post(url, json=data)
+            except:
+                print("Post request fail")
+            else:
+                post_response = requests.post(url, json=data)
+            finally:
+                post_response = {"status_code": 500}            
 
-        return put_request.status_code
+        return post_response.status_code
 
     def get_details(self, ports_of_all_nodes):
         details= []
@@ -188,9 +195,20 @@ class logic:
                 }
             self.metrics['size']+= sys.getsizeof(data)
             self.metrics['messages']+= 1
-            post_response = requests.post(url, json=data)
-            status_code_array.append(post_response.status_code)
-        
+
+            try:
+                post_response = requests.post(url, json=data)
+                status_code_array.append(post_response.status_code)
+                print (post_response.status_code)
+            except:
+                print("Post request fail")
+            else:
+                post_response = requests.post(url, json=data)
+                status_code_array.append(post_response.status_code)
+            finally:
+                post_response = {"status_code": 500}   
+                status_code_array.append(post_response)
+
         if not 200 in status_code_array:
             return self.ID_local
              
@@ -224,7 +242,16 @@ class logic:
                 self.metrics['size']+= sys.getsizeof(data)
                 self.metrics['messages']+= 1
                 url = self.url_local + str(each_node) + '/announce'
-                requests.post(url, json=data)
+
+                try:
+                    requests.post(url, json=data)
+                except:
+                    print("Post request fail")
+                else:
+                    requests.post(url, json=data)
+                finally:
+                    time.sleep(5)  
+
         return {'Response': 'OK'}, 200
 
     def get_metrics(self):
