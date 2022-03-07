@@ -6,7 +6,6 @@ logic = target.logic
 
 class TestLogic(unittest.TestCase):
     
-    
     def test_preamble(self):
         
         logic.preamble ()

@@ -190,14 +190,13 @@ class logic:
             except:
                 print("Post request fail")
             else:
-                post_response = requests.post(url, json=data)
-            finally:
-                post_response = {"status_code": 500}            
+                code = 500           
 
         return post_response.status_code
 
     def election(self, higher_nodes_array):
         status_code_array = []
+        post_response= {}
         if not higher_nodes_array:
             return self.ID_local
 
@@ -213,15 +212,10 @@ class logic:
             try:
                 post_response = requests.post(url, json=data)
                 status_code_array.append(post_response.status_code)
-                print (post_response.status_code)
             except:
                 print("Post request fail")
             else:
-                post_response = requests.post(url, json=data)
-                status_code_array.append(post_response.status_code)
-            finally:
-                post_response = {"status_code": 500}   
-                status_code_array.append(post_response)
+                status_code_array.append(500) 
 
             if post_response.status_code == 200:
                 return "Redirect"                
@@ -265,10 +259,9 @@ class logic:
                 except:
                     print("Post request fail")
                 else:
-                    requests.post(url, json=data)
-                finally:
-                    time.sleep(5)
-                      
+                    code = 500
+
+
         return {'Response': 'OK'}, 200
 
     def get_metrics(self):

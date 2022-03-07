@@ -154,9 +154,7 @@ class logic:
             except:
                 print("Post request fail")
             else:
-                post_response = requests.post(url, json=data)
-            finally:
-                post_response = {"status_code": 500}            
+                code = 500       
 
         return post_response.status_code
 
@@ -199,15 +197,10 @@ class logic:
             try:
                 post_response = requests.post(url, json=data)
                 status_code_array.append(post_response.status_code)
-                print (post_response.status_code)
             except:
                 print("Post request fail")
             else:
-                post_response = requests.post(url, json=data)
-                status_code_array.append(post_response.status_code)
-            finally:
-                post_response = {"status_code": 500}   
-                status_code_array.append(post_response)
+                status_code_array.append(500) 
 
         if not 200 in status_code_array:
             return self.ID_local
@@ -224,6 +217,7 @@ class logic:
 #        return service_status
    
     def announce(self, coordinator):
+        status_code_array = []
         data = {
             'ID_coordinator': coordinator,
             'port_coordinator': self.port_local
@@ -248,9 +242,7 @@ class logic:
                 except:
                     print("Post request fail")
                 else:
-                    requests.post(url, json=data)
-                finally:
-                    time.sleep(5)  
+                    code = 500
 
         return {'Response': 'OK'}, 200
 
