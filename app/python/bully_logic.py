@@ -44,11 +44,13 @@ class logic:
             id_num= 0
             for port_id in self.hosts_ports:
                 service_register_status = self.register_service(host, port_id,self.ids_nodes[id_num], id_num)
+                if service_register_status== 500:
+                    return 500
                 id_num += 1
 
         self.start()
         
-        return service_register_status
+        return 200
 
     def start(self):
 
@@ -68,7 +70,7 @@ class logic:
 
             self.get_metrics()
         
-        return
+        return 200
     
     def go_deep(self, high_IDs):
 
@@ -78,11 +80,8 @@ class logic:
         if not self.ids_nodes:
             self.ids_nodes= self.define_ids()
         
-#        for thread in self.threads:
-#           thread.join()
-        
         if self.election_local== False:
-            return
+            return 200
 
         if high_IDs is not None:
             winner= self.election(high_IDs)
@@ -95,10 +94,13 @@ class logic:
 
             self.metrics["time_finish"]= perf_counter()
 
+#            for thread in self.threads:
+#               thread.join()
+
             self.get_metrics()
         
         self.election_local= False
-        return
+        return 200
     
     def define_ports(self):
         count= self.number_of_hosts
@@ -124,9 +126,6 @@ class logic:
         return node_id
 
     def register_service(self, host, port_id, node_id, n):
-#        status= self.check_health_of_the_service(port_id)
-#        if status == "Failed":
-#            return status
         if host == port_id:
             tempID= node_id
         else:
@@ -147,14 +146,13 @@ class logic:
             if port_id == self.port_local:
                 self.ID_local= node_id
             self.register[n].update(data)
-            return {'Response': 'OK'}, 200
+            return 200
         else: 
             try:
                 post_response = requests.post(url, json=data)
             except:
-                print("Post request fail")
-            else:
-                code = 500   
+                print("Post request fail")  
+                return 500
 
         return post_response.status_code
 
@@ -199,22 +197,12 @@ class logic:
                 status_code_array.append(post_response.status_code)
             except:
                 print("Post request fail")
-            else:
                 status_code_array.append(500) 
 
         if not 200 in status_code_array:
             return self.ID_local
              
         return "Redirect"
-
-#    def check_health_of_the_service(port):
-#        print('Checking for host stay-alive')   
-#        url = self.url_local + 'port' + '/services/health'
-#        response = requests.get(url)
-#        if response.status_code != 200:
-#            service_status = 'Failed'
-#        print('Service status: %s' % service_status)
-#        return service_status
    
     def announce(self, coordinator):
         status_code_array = []
@@ -236,15 +224,12 @@ class logic:
                 self.metrics['size']+= sys.getsizeof(data)
                 self.metrics['messages']+= 1
                 url = self.url_local + str(each_node) + '/announce'
-
                 try:
-                    requests.post(url, json=data)
+                    code= requests.post(url, json=data)
                 except:
-                    print("Post request fail")
-                else:
-                    code = 500
+                    print("Post request fail")                    
 
-        return {'Response': 'OK'}, 200
+        return 200
 
     def get_metrics(self):
         details = []
@@ -252,14 +237,20 @@ class logic:
             if each_port != self.port_local: 
                 url = self.url_local + str(each_port) + '/performance'
                 data = requests.get(url).json()          
-                self.metrics['time_finish'] = self.metrics['time_finish'] - self.metrics['time_start']
+                if data['time'] != 0:          
+                    self.metrics['time_finish'] = self.metrics['time_finish'] - data['time']  
                 self.metrics['size'] += data['size']
                 self.metrics['messages'] += data['messages']
+            else:
+                if self.metrics['time_start'] != 0:                            
+                    self.metrics['time_finish'] = self.metrics['time_finish'] - self.metrics['time_start']
+
         logging.basicConfig(filename='app.log', filemode='w', level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
         logging.info('Metrics for test with %s machine', self.number_of_hosts)                
-        logging.info('Time elspased for find the coordinator is %s', self.metrics['size'])
-        logging.info('Total size of messages exchanged are %s', self.metrics['messages'])
+        logging.info('Time elspased for find the coordinator is %s seconds', self.metrics['time_finish'])
+        logging.info('Total size of messages exchanged are %s bytes', self.metrics['size'])
         logging.info('Total number of messages exchanged are %s', self.metrics['messages'])
+        logging.info('%s,%s,%s', self.metrics['time_finish'], self.metrics['size'], self.metrics['messages'])
         logging.shutdown()
         os.system('mkdir /app/python/static')
         os.system('mv /app/app.log /app/python/static')

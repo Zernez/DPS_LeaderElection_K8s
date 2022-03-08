@@ -3,7 +3,7 @@ import time
 from time import perf_counter
 from threading import Thread
 import os
-from bully_logic import logic
+from bully_logic_improved import logic
 
 app = Flask(__name__)
 
@@ -58,14 +58,14 @@ def get_performance():
 @app.route('/')
 def resume():
     if bully.coordinator_local is None:
-        coordinator_result= "No coordinator for now..."
-        return render_template('index.html', winner= coordinator_result, port_winner= coordinator_result, partecipants= bully.number_of_hosts, timelapsed= 0, totalsize= bully.metrics["size"], totalmessages= bully.metrics["messages"])
+        coordinator_result= "Something went wrong with network, please re-start..."
+        return render_template('index.html', winner= coordinator_result, port_winner= coordinator_result, partecipants= bully.number_of_hosts, timelapsed= "None", totalsize= "None", totalmessages= "None")
     else:
         coordinator_result= bully.coordinator_local
         if coordinator_result== bully.ID_local:
             return render_template('indexDownload.html', winner= coordinator_result, port_winner= "This machine", partecipants= bully.number_of_hosts, timelapsed= bully.metrics["time_finish"], totalsize= bully.metrics["size"], totalmessages= bully.metrics["messages"])
         else:
-            return render_template('index.html', winner= coordinator_result, port_winner= bully.port_coordinator_local, partecipants= bully.number_of_hosts, timelapsed= 0, totalsize= 0, totalmessages= 0)            
+            return render_template('index.html', winner= coordinator_result, port_winner= bully.port_coordinator_local, partecipants= bully.number_of_hosts, timelapsed= "See on winner host", totalsize= "See on winner host", totalmessages= "See on winner host")
 
 @app.route('/download')
 def download():
