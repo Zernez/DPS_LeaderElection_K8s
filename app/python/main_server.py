@@ -1,11 +1,9 @@
-from flask import Flask, jsonify, request, render_template, send_file, send_from_directory
+from flask import Flask, jsonify, request, render_template
 import time
 from time import perf_counter
 from threading import Thread
 import os
 from bully_logic_improved import logic
-
-app = Flask(__name__)
 
 bully = logic()
 
@@ -15,6 +13,8 @@ if bully.port_local == int(os.environ["MUTEX"]):
 
 if bully.election_local== True:
     bully.preamble()
+
+app = Flask(__name__)
 
 @app.route('/register', methods=['POST'])
 def preamble_register():

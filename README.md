@@ -20,6 +20,12 @@ to start and terminate the clusters.
 
 `http:\\\localhost:<any_port_do_you_want>`
 
+--The test start with this command in the app folder:
+
+`$pip install pytest` (only one time for install the dependency)
+
+`$pytest test/test_bully_logic.py`
+
 --In the deployment.yaml, in "data: mutex: 5011" a little below "kind: ConfigMap", is possible to change where the program start the bully election for the first time.
 
 --In the deployment.yaml, in "data: num_host: 5" a little below "kind: ConfigMap", is obligatory to set when change the number of container 

@@ -6,6 +6,7 @@ from random import randint
 import sys
 import os
 import logging
+from threading import Thread, current_thread
 
 class logic:
 
@@ -56,11 +57,11 @@ class logic:
 
         self.metrics["time_start"]= perf_counter()
 
-        detail=self.get_details(self.hosts_ports)
+        detail=self.get_details()
         
-        high_IDs= self.get_higher_nodes(detail)
+        high_IDs= self.get_higher_nodes(detail, self.ID_local)
 
-        winner= self.election(high_IDs)
+        winner= self.election(high_IDs, self.ID_local)
 
         if winner != "Redirect":
 
@@ -69,7 +70,8 @@ class logic:
             self.metrics["time_finish"]= perf_counter()
 
             self.get_metrics()
-        
+            
+        self.election_local= False     
         return 200
     
     def go_deep(self, high_IDs):
@@ -83,19 +85,20 @@ class logic:
         if self.election_local== False:
             return 200
 
+        for thread in self.threads:
+            if thread is not current_thread():
+                thread.join()      
+
         if high_IDs is not None:
-            winner= self.election(high_IDs)
+            winner= self.election(high_IDs, self.ID_local)
         else:
-            winner= self.ID_local
+            winner= self.ID_local      
 
         if winner != "Redirect":
 
             self.announce(winner)
 
             self.metrics["time_finish"]= perf_counter()
-
-#            for thread in self.threads:
-#               thread.join()
 
             self.get_metrics()
         
@@ -135,7 +138,7 @@ class logic:
             "ID": node_id,
             "port": port_id,
             "coordinator": None,
-            "election": self.election_local,
+            "election": True,
             "seq": n,
             "ID_local": tempID
         }
@@ -156,7 +159,7 @@ class logic:
 
         return post_response.status_code
 
-    def get_details(self, ports_of_all_nodes):
+    def get_details(self):
         details= []
         for host in self.register:
             if host['port'] != self.port_local:
@@ -167,17 +170,17 @@ class logic:
                 details.append(detail)
         return details
 
-    def get_higher_nodes(self, node_details):
+    def get_higher_nodes(self, node_details, IDlocal):
         higher_node_array = []
         for each in node_details:
-            if each['ID'] > self.ID_local:
+            if each['ID'] > IDlocal:
                 higher_node_array.append(each['port'])
         return higher_node_array
 
-    def election(self, higher_nodes_array):
+    def election(self, higher_nodes_array, IDlocal):
         status_code_array = []
         if not higher_nodes_array:
-            return self.ID_local
+            return IDlocal
 
         for each_port in higher_nodes_array:
             url = self.url_local + str(each_port) + '/redirect'
@@ -200,7 +203,7 @@ class logic:
                 status_code_array.append(500) 
 
         if not 200 in status_code_array:
-            return self.ID_local
+            return IDlocal
              
         return "Redirect"
    
