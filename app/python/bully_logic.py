@@ -107,7 +107,7 @@ class logic:
     
     def define_ports(self):
         count= self.number_of_hosts
-        first= 5010
+        first= 7070
         data_port=[]
         while count> 0:
             data_port.append(first)

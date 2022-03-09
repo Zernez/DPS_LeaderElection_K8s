@@ -3,13 +3,13 @@ import time
 from time import perf_counter
 from threading import Thread
 import os
-from bully_logic_improved import logic
+from bully_logic import logic
 
 bully = logic()
 
 if bully.port_local == int(os.environ["MUTEX"]):
     bully.election_local= True
-    time.sleep(5)
+    time.sleep(15)
 
 if bully.election_local== True:
     bully.preamble()

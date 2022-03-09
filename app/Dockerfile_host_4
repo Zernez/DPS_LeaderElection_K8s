@@ -5,5 +5,5 @@ WORKDIR /app
 ADD . /app/
 RUN pip install -r requirements.txt
 
-EXPOSE 5004
+EXPOSE 7004
 CMD ["python", "/app/python/main_server.py"]
