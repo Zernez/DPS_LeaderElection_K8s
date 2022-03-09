@@ -123,7 +123,7 @@ spec:
     - name: tcp19
       protocol: TCP
       nodePort: 30019
-      port: 7099
+      port: 7089
       targetPort: 7019
 
   type: LoadBalancer
@@ -448,7 +448,7 @@ spec:
           - name: PORT_CONFIG
             value: "5081"
           - name: INTERNAL_PORT
-            value: "7071"
+            value: "7011"
         volumeMounts:
         - name: config
           mountPath: "/config"
