@@ -9,32 +9,122 @@ spec:
     - name: tcp0
       protocol: TCP
       nodePort: 30000
-      port: 5010
-      targetPort: 5000
+      port: 7070
+      targetPort: 7000
 
     - name: tcp1
       protocol: TCP
       nodePort: 30001
-      port: 5011
-      targetPort: 5001
+      port: 7071
+      targetPort: 7001
 
     - name: tcp2
       protocol: TCP
       nodePort: 30002
-      port: 5012
-      targetPort: 5002
+      port: 7072
+      targetPort: 7002
 
     - name: tcp3
       protocol: TCP
       nodePort: 30003
-      port: 5013
-      targetPort: 5003
+      port: 7073
+      targetPort: 7003
 
     - name: tcp4
       protocol: TCP
+      nodePort: 30004
+      port: 7074
+      targetPort: 7004
+
+    - name: tcp5
+      protocol: TCP
+      nodePort: 30005
+      port: 7075
+      targetPort: 7005
+
+    - name: tcp6
+      protocol: TCP
+      nodePort: 30006
+      port: 7076
+      targetPort: 7006
+
+    - name: tcp7
+      protocol: TCP
+      nodePort: 30007
+      port: 7077
+      targetPort: 7007
+
+    - name: tcp8
+      protocol: TCP
+      nodePort: 30008
+      port: 7078
+      targetPort: 7008
+
+    - name: tcp9
+      protocol: TCP
+      nodePort: 30009
+      port: 7079
+      targetPort: 7009
+
+    - name: tcp10
+      protocol: TCP
       nodePort: 30010
-      port: 5014
-      targetPort: 5004
+      port: 7080
+      targetPort: 7010
+
+    - name: tcp11
+      protocol: TCP
+      nodePort: 30011
+      port: 7081
+      targetPort: 7011
+
+    - name: tcp12
+      protocol: TCP
+      nodePort: 30012
+      port: 7082
+      targetPort: 7012
+
+    - name: tcp13
+      protocol: TCP
+      nodePort: 30013
+      port: 7083
+      targetPort: 7013
+
+    - name: tcp14
+      protocol: TCP
+      nodePort: 30014
+      port: 7084
+      targetPort: 7014
+
+    - name: tcp15
+      protocol: TCP
+      nodePort: 30015
+      port: 7085
+      targetPort: 7015
+
+    - name: tcp16
+      protocol: TCP
+      nodePort: 30016
+      port: 7086
+      targetPort: 7016
+
+    - name: tcp17
+      protocol: TCP
+      nodePort: 30017
+      port: 7087
+      targetPort: 7017
+
+    - name: tcp18
+      protocol: TCP
+      nodePort: 30018
+      port: 7088
+      targetPort: 7018
+
+    - name: tcp19
+      protocol: TCP
+      nodePort: 30019
+      port: 7089
+      targetPort: 7019
 
   type: LoadBalancer
 
@@ -45,8 +135,8 @@ kind: ConfigMap
 metadata:
   name: system
 data:
-  mutex: "5011"
-  num_host: "5"
+  mutex: "7071"
+  num_host: "20"
 ---
 
 apiVersion: apps/v1
@@ -68,7 +158,7 @@ spec:
         image: leader-election-python-0:latest
         imagePullPolicy: Never
         ports:
-        - containerPort: 5000
+        - containerPort: 7000
         env:
           - name: NUM_HOST                         
             valueFrom:
@@ -81,9 +171,9 @@ spec:
                 name: system 
                 key: mutex
           - name: PORT_CONFIG
-            value: "5010"
+            value: "7070"
           - name: INTERNAL_PORT
-            value: "5000"
+            value: "7000"
         volumeMounts:
         - name: config
           mountPath: "/config"
@@ -93,7 +183,7 @@ spec:
         image: leader-election-python-1:latest
         imagePullPolicy: Never
         ports:
-        - containerPort: 5001
+        - containerPort: 7001
         env:
           - name: NUM_HOST                         
             valueFrom:
@@ -106,9 +196,9 @@ spec:
                 name: system 
                 key: mutex
           - name: PORT_CONFIG
-            value: "5011"
+            value: "7071"
           - name: INTERNAL_PORT
-            value: "5001"
+            value: "7001"
         volumeMounts:
         - name: config
           mountPath: "/config"
@@ -118,7 +208,7 @@ spec:
         image: leader-election-python-2:latest
         imagePullPolicy: Never
         ports:
-        - containerPort: 5002
+        - containerPort: 7002
         env:
           - name: NUM_HOST                         
             valueFrom:
@@ -131,9 +221,9 @@ spec:
                 name: system  
                 key: mutex
           - name: PORT_CONFIG
-            value: "5012"
+            value: "7072"
           - name: INTERNAL_PORT
-            value: "5002"
+            value: "7002"
         volumeMounts:
         - name: config
           mountPath: "/config"
@@ -143,7 +233,7 @@ spec:
         image: leader-election-python-3:latest
         imagePullPolicy: Never
         ports:
-        - containerPort: 5003
+        - containerPort: 7003
         env:
           - name: NUM_HOST                         
             valueFrom:
@@ -156,9 +246,9 @@ spec:
                 name: system  
                 key: mutex
           - name: PORT_CONFIG
-            value: "5013"
+            value: "7073"
           - name: INTERNAL_PORT
-            value: "5003"
+            value: "7003"
         volumeMounts:
         - name: config
           mountPath: "/config"
@@ -168,7 +258,7 @@ spec:
         image: leader-election-python-4:latest
         imagePullPolicy: Never
         ports:
-        - containerPort: 5004
+        - containerPort: 7004
         env:
           - name: NUM_HOST                         
             valueFrom:
@@ -181,14 +271,389 @@ spec:
                 name: system  
                 key: mutex
           - name: PORT_CONFIG
-            value: "5014"
+            value: "7074"
           - name: INTERNAL_PORT
-            value: "5004"
+            value: "7004"
+        volumeMounts:
+        - name: config
+          mountPath: "/config"
+          readOnly: true
+
+      - name: leader-election-python-5
+        image: leader-election-python-5:latest
+        imagePullPolicy: Never
+        ports:
+        - containerPort: 7005
+        env:
+          - name: NUM_HOST                         
+            valueFrom:
+              configMapKeyRef:
+                name: system 
+                key: num_host
+          - name: MUTEX                         
+            valueFrom:
+              configMapKeyRef:
+                name: system 
+                key: mutex
+          - name: PORT_CONFIG
+            value: "7075"
+          - name: INTERNAL_PORT
+            value: "7005"
+        volumeMounts:
+        - name: config
+          mountPath: "/config"
+          readOnly: true
+    
+      - name: leader-election-python-6
+        image: leader-election-python-6:latest
+        imagePullPolicy: Never
+        ports:
+        - containerPort: 7006
+        env:
+          - name: NUM_HOST                         
+            valueFrom:
+              configMapKeyRef:
+                name: system 
+                key: num_host
+          - name: MUTEX                         
+            valueFrom:
+              configMapKeyRef:
+                name: system 
+                key: mutex
+          - name: PORT_CONFIG
+            value: "7076"
+          - name: INTERNAL_PORT
+            value: "7006"
+        volumeMounts:
+        - name: config
+          mountPath: "/config"
+          readOnly: true
+
+      - name: leader-election-python-7
+        image: leader-election-python-7:latest
+        imagePullPolicy: Never
+        ports:
+        - containerPort: 7007
+        env:
+          - name: NUM_HOST                         
+            valueFrom:
+              configMapKeyRef:
+                name: system 
+                key: num_host
+          - name: MUTEX                         
+            valueFrom:
+              configMapKeyRef:
+                name: system  
+                key: mutex
+          - name: PORT_CONFIG
+            value: "7077"
+          - name: INTERNAL_PORT
+            value: "7007"
+        volumeMounts:
+        - name: config
+          mountPath: "/config"
+          readOnly: true
+
+      - name: leader-election-python-8
+        image: leader-election-python-8:latest
+        imagePullPolicy: Never
+        ports:
+        - containerPort: 7008
+        env:
+          - name: NUM_HOST                         
+            valueFrom:
+              configMapKeyRef:
+                name: system 
+                key: num_host
+          - name: MUTEX                         
+            valueFrom:
+              configMapKeyRef:
+                name: system  
+                key: mutex
+          - name: PORT_CONFIG
+            value: "7078"
+          - name: INTERNAL_PORT
+            value: "7008"
+        volumeMounts:
+        - name: config
+          mountPath: "/config"
+          readOnly: true
+
+      - name: leader-election-python-9
+        image: leader-election-python-9:latest
+        imagePullPolicy: Never
+        ports:
+        - containerPort: 7009
+        env:
+          - name: NUM_HOST                         
+            valueFrom:
+              configMapKeyRef:
+                name: system 
+                key: num_host
+          - name: MUTEX                         
+            valueFrom:
+              configMapKeyRef:
+                name: system  
+                key: mutex
+          - name: PORT_CONFIG
+            value: "7079"
+          - name: INTERNAL_PORT
+            value: "7009"
         volumeMounts:
         - name: config
           mountPath: "/config"
           readOnly: true
       
+      - name: leader-election-python-10
+        image: leader-election-python-10:latest
+        imagePullPolicy: Never
+        ports:
+        - containerPort: 7010
+        env:
+          - name: NUM_HOST                         
+            valueFrom:
+              configMapKeyRef:
+                name: system 
+                key: num_host
+          - name: MUTEX                         
+            valueFrom:
+              configMapKeyRef:
+                name: system 
+                key: mutex
+          - name: PORT_CONFIG
+            value: "7080"
+          - name: INTERNAL_PORT
+            value: "7010"
+        volumeMounts:
+        - name: config
+          mountPath: "/config"
+          readOnly: true
+    
+      - name: leader-election-python-11
+        image: leader-election-python-11:latest
+        imagePullPolicy: Never
+        ports:
+        - containerPort: 7011
+        env:
+          - name: NUM_HOST                         
+            valueFrom:
+              configMapKeyRef:
+                name: system 
+                key: num_host
+          - name: MUTEX                         
+            valueFrom:
+              configMapKeyRef:
+                name: system 
+                key: mutex
+          - name: PORT_CONFIG
+            value: "5081"
+          - name: INTERNAL_PORT
+            value: "7011"
+        volumeMounts:
+        - name: config
+          mountPath: "/config"
+          readOnly: true
+
+      - name: leader-election-python-12
+        image: leader-election-python-12:latest
+        imagePullPolicy: Never
+        ports:
+        - containerPort: 7012
+        env:
+          - name: NUM_HOST                         
+            valueFrom:
+              configMapKeyRef:
+                name: system 
+                key: num_host
+          - name: MUTEX                         
+            valueFrom:
+              configMapKeyRef:
+                name: system  
+                key: mutex
+          - name: PORT_CONFIG
+            value: "7082"
+          - name: INTERNAL_PORT
+            value: "7012"
+        volumeMounts:
+        - name: config
+          mountPath: "/config"
+          readOnly: true
+
+      - name: leader-election-python-13
+        image: leader-election-python-13:latest
+        imagePullPolicy: Never
+        ports:
+        - containerPort: 7013
+        env:
+          - name: NUM_HOST                         
+            valueFrom:
+              configMapKeyRef:
+                name: system 
+                key: num_host
+          - name: MUTEX                         
+            valueFrom:
+              configMapKeyRef:
+                name: system  
+                key: mutex
+          - name: PORT_CONFIG
+            value: "7083"
+          - name: INTERNAL_PORT
+            value: "7013"
+        volumeMounts:
+        - name: config
+          mountPath: "/config"
+          readOnly: true
+
+      - name: leader-election-python-14
+        image: leader-election-python-14:latest
+        imagePullPolicy: Never
+        ports:
+        - containerPort: 7014
+        env:
+          - name: NUM_HOST                         
+            valueFrom:
+              configMapKeyRef:
+                name: system 
+                key: num_host
+          - name: MUTEX                         
+            valueFrom:
+              configMapKeyRef:
+                name: system  
+                key: mutex
+          - name: PORT_CONFIG
+            value: "7084"
+          - name: INTERNAL_PORT
+            value: "7014"
+        volumeMounts:
+        - name: config
+          mountPath: "/config"
+          readOnly: true
+
+      - name: leader-election-python-15
+        image: leader-election-python-15:latest
+        imagePullPolicy: Never
+        ports:
+        - containerPort: 7015
+        env:
+          - name: NUM_HOST                         
+            valueFrom:
+              configMapKeyRef:
+                name: system 
+                key: num_host
+          - name: MUTEX                         
+            valueFrom:
+              configMapKeyRef:
+                name: system 
+                key: mutex
+          - name: PORT_CONFIG
+            value: "7085"
+          - name: INTERNAL_PORT
+            value: "7015"
+        volumeMounts:
+        - name: config
+          mountPath: "/config"
+          readOnly: true
+    
+      - name: leader-election-python-16
+        image: leader-election-python-16:latest
+        imagePullPolicy: Never
+        ports:
+        - containerPort: 7016
+        env:
+          - name: NUM_HOST                         
+            valueFrom:
+              configMapKeyRef:
+                name: system 
+                key: num_host
+          - name: MUTEX                         
+            valueFrom:
+              configMapKeyRef:
+                name: system 
+                key: mutex
+          - name: PORT_CONFIG
+            value: "7086"
+          - name: INTERNAL_PORT
+            value: "7016"
+        volumeMounts:
+        - name: config
+          mountPath: "/config"
+          readOnly: true
+
+      - name: leader-election-python-17
+        image: leader-election-python-17:latest
+        imagePullPolicy: Never
+        ports:
+        - containerPort: 7017
+        env:
+          - name: NUM_HOST                         
+            valueFrom:
+              configMapKeyRef:
+                name: system 
+                key: num_host
+          - name: MUTEX                         
+            valueFrom:
+              configMapKeyRef:
+                name: system  
+                key: mutex
+          - name: PORT_CONFIG
+            value: "7087"
+          - name: INTERNAL_PORT
+            value: "7017"
+        volumeMounts:
+        - name: config
+          mountPath: "/config"
+          readOnly: true
+
+      - name: leader-election-python-18
+        image: leader-election-python-18:latest
+        imagePullPolicy: Never
+        ports:
+        - containerPort: 7018
+        env:
+          - name: NUM_HOST                         
+            valueFrom:
+              configMapKeyRef:
+                name: system 
+                key: num_host
+          - name: MUTEX                         
+            valueFrom:
+              configMapKeyRef:
+                name: system  
+                key: mutex
+          - name: PORT_CONFIG
+            value: "7088"
+          - name: INTERNAL_PORT
+            value: "7018"
+        volumeMounts:
+        - name: config
+          mountPath: "/config"
+          readOnly: true
+
+      - name: leader-election-python-19
+        image: leader-election-python-19:latest
+        imagePullPolicy: Never
+        ports:
+        - containerPort: 7019
+        env:
+          - name: NUM_HOST                         
+            valueFrom:
+              configMapKeyRef:
+                name: system 
+                key: num_host
+          - name: MUTEX                         
+            valueFrom:
+              configMapKeyRef:
+                name: system  
+                key: mutex
+          - name: PORT_CONFIG
+            value: "7089"
+          - name: INTERNAL_PORT
+            value: "7019"
+        volumeMounts:
+        - name: config
+          mountPath: "/config"
+          readOnly: true
+
       volumes:
       - name: config
         configMap:

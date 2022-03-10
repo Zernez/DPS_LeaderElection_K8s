@@ -74,20 +74,21 @@ class logic:
         self.election_local= False     
         return 200
     
-    def go_deep(self, high_IDs):
+    def go_deep(self, candidates):
 
         if not self.hosts_ports:
             self.hosts_ports= self.define_ports()
 
         if not self.ids_nodes:
             self.ids_nodes= self.define_ids()
+
+        detail=self.get_details(candidates)
         
-        if self.election_local== False:
-            return 200
+        high_IDs= self.get_higher_nodes(detail, self.ID_local)
 
         for thread in self.threads:
             if thread is not current_thread():
-                thread.join()      
+                thread.join()          
 
         if high_IDs is not None:
             winner= self.election(high_IDs, self.ID_local)
@@ -107,7 +108,7 @@ class logic:
     
     def define_ports(self):
         count= self.number_of_hosts
-        first= 5010
+        first= 7070
         data_port=[]
         while count> 0:
             data_port.append(first)
@@ -159,15 +160,18 @@ class logic:
 
         return post_response.status_code
 
-    def get_details(self):
+    def get_details(self, port_range= []):
         details= []
+        if port_range== []:
+            port_range= self.hosts_ports
         for host in self.register:
-            if host['port'] != self.port_local:
-                id = host['ID']
-                port = host['port']
-                election = host['election']
-                detail = {'ID': id, 'port': port,'election': election}
-                details.append(detail)
+            if host['port'] in port_range:
+                if host['port'] != self.port_local:
+                    id = host['ID']
+                    port = host['port']
+                    election = host['election']
+                    detail = {'ID': id, 'port': port,'election': election}
+                    details.append(detail)
         return details
 
     def get_higher_nodes(self, node_details, IDlocal):
