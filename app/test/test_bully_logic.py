@@ -2,7 +2,7 @@ import pytest
 
 @pytest.fixture(autouse=True)
 def logic_suite(monkeypatch):
-    def fake_register(self, host=5011, port_id= 5010, node_id= 10001, n= 0):
+    def fake_register(self, host=7071, port_id= 7070, node_id= 10001, n= 0):
         return 200
     
     def fake_start(self):     
@@ -17,19 +17,19 @@ def logic_suite(monkeypatch):
     from python.bully_logic import logic
     import requests
     monkeypatch.setitem(logic.register[0], 'ID', 10001)
-    monkeypatch.setitem(logic.register[0], 'port', 5010)
+    monkeypatch.setitem(logic.register[0], 'port', 7070)
     monkeypatch.setitem(logic.register[0], 'election', True)
     monkeypatch.setitem(logic.register[1], 'ID', 10002)
-    monkeypatch.setitem(logic.register[1], 'port', 5011)
+    monkeypatch.setitem(logic.register[1], 'port', 7071)
     monkeypatch.setitem(logic.register[1], 'election', True)
     monkeypatch.setitem(logic.register[2], 'ID', 10003)
-    monkeypatch.setitem(logic.register[2], 'port', 5012)
+    monkeypatch.setitem(logic.register[2], 'port', 7072)
     monkeypatch.setitem(logic.register[2], 'election', True)
     monkeypatch.setitem(logic.register[3], 'ID', 10004)
-    monkeypatch.setitem(logic.register[3], 'port', 5013)
+    monkeypatch.setitem(logic.register[3], 'port', 7073)
     monkeypatch.setitem(logic.register[3], 'election', True)
     monkeypatch.setitem(logic.register[4], 'ID', 10005)
-    monkeypatch.setitem(logic.register[4], 'port', 5014)
+    monkeypatch.setitem(logic.register[4], 'port', 7074)
     monkeypatch.setitem(logic.register[4], 'election', True)
     monkeypatch.setattr(logic,'register_service', fake_register)
     monkeypatch.setattr(logic,'start', fake_start)
@@ -44,7 +44,7 @@ class TestEnvironment:
 
     def test_define_ports(self, logic_suite):
         logic_element = logic_suite()
-        assert logic_element.define_ports() == [5010, 5011, 5012, 5013, 5014]
+        assert logic_element.define_ports() == [7070, 7071, 7072, 7073, 7074]
 
     def test_define_ids(self, logic_suite):
         logic_element = logic_suite()
@@ -60,23 +60,16 @@ class TestEnvironment:
 
     def test_get_details(self, logic_suite):
         logic_element = logic_suite()
-        assert logic_element.get_details() == [{'ID': 10001, 'port': 5010,'election': True},
-            {'ID': 10002, 'port': 5011,'election': True},
-            {'ID': 10003, 'port': 5012,'election': True},
-            {'ID': 10004, 'port': 5013,'election': True},
-            {'ID': 10005, 'port': 5014,'election': True}]
+        assert logic_element.get_details([7070,7074]) == [{'ID': 10001, 'port': 7070,'election': True},
+            {'ID': 10005, 'port': 7074,'election': True}]
 
-    def test_get_details(self, logic_suite):
+    def test_get_higher_nodes(self, logic_suite):
         logic_element = logic_suite()
-        assert logic_element.get_higher_nodes([{'ID': 10001, 'port': 5010,'election': True},
-            {'ID': 10002, 'port': 5011,'election': True},
-            {'ID': 10003, 'port': 5012,'election': True},
-            {'ID': 10004, 'port': 5013,'election': True},
-            {'ID': 10005, 'port': 5014,'election': True}], 10001) == [5011,5012,5013,5014]
-
-    def test_go_deep(self, logic_suite):
-        logic_element = logic_suite()
-        assert logic_element.go_deep(10005)== 200
+        assert logic_element.get_higher_nodes([{'ID': 10001, 'port': 7070,'election': True},
+            {'ID': 10002, 'port': 7071,'election': True},
+            {'ID': 10003, 'port': 7072,'election': True},
+            {'ID': 10004, 'port': 7073,'election': True},
+            {'ID': 10005, 'port': 7074,'election': True}], 10001) == [7071,7072,7073,7074]
 
     def test_election(self, logic_suite):
         logic_element = logic_suite()

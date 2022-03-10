@@ -3,7 +3,7 @@ import time
 from time import perf_counter
 from threading import Thread
 import os
-from bully_logic_improved import logic
+from bully_logic import logic
 
 bully = logic()
 
