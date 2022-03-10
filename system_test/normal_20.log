@@ -1,0 +1,5 @@
+2022-03-10 07:51:59,992 - INFO - Metrics for test with 20 machine
+2022-03-10 07:51:59,992 - INFO - Time elspased for find the coordinator is 0.2625290999999379 seconds
+2022-03-10 07:51:59,992 - INFO - Total size of messages exchanged are 44392 bytes
+2022-03-10 07:51:59,992 - INFO - Total number of messages exchanged are 179
+2022-03-10 07:51:59,992 - INFO - 0.2625290999999379,44392,179
