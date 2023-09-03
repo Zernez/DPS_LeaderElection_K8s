@@ -1,3 +1,5 @@
+# Bully algorithm improved implemented with Docker-Kubernetes
+
 --For create the images (only the first time or when modifiy the code of container), inside the folder "app" for each of the dockerfile, firstly:
 
 `$docker build -f Dockerfile_host_<number_of_the:container> -t leader-election-python-<number_of_the:container>:latest .`
