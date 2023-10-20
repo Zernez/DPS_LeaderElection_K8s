@@ -32,6 +32,8 @@ http:\\\localhost:<any_port_do_you_want>
 
 --The program will return the result and metrics on http:\\\localhost:<any_port_do_you_want>, the winner will show the metrics
 
+![K8s](kubernetes.png)
+
 
 
 
